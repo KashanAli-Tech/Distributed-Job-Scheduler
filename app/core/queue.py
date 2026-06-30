@@ -13,7 +13,7 @@ class JobQueue:
         self.queue.append(job)
 
     def get_job(self):
-        # taking job from front (FIFO behaviour)
+        # taking job from front 
         if self.queue:
             return self.queue.popleft()
         return None

@@ -9,8 +9,8 @@ router = APIRouter()
 @router.post("/submit-job")
 def submit_job(job: Job):
     # API endpoint where user sends job data
-    # job gets created and pushed into queue
 
+    # job gets created and pushed into queue
     queue.add_job(job)
 
     return {

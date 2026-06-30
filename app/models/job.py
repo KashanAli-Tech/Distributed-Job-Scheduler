@@ -3,14 +3,12 @@ from uuid import uuid4
 
 
 class Job(BaseModel):
-    # unique id generated for every new job
+    # unique id generated for every new job and formatted as string
     id: str = Field(default_factory=lambda: str(uuid4()))
-
     # decides what kind of work this job will do
     type: str
-
     # extra data needed for the job
+    # By using Field, it creates a new empty dictionary for every new job
     payload: dict = Field(default_factory=dict)
-
     # current state of the job
     status: str = "pending"
