@@ -1,4 +1,5 @@
 import time
+from app.core.system import jobs
 
 
 class Worker:
@@ -11,10 +12,28 @@ class Worker:
         # infinite loop so worker never stops running
         # constantly checks if there are jobs to process
         while self.running:
+
             job = self.queue.get_job()
 
             if job:
-                self.process_job(job)
+                # mark job as running before processing
+                job.status = "running"
+                jobs[job.id] = job
+
+                self.log(job, "running")
+
+                # process job and get result
+                result = self.process_job(job)
+
+                # store result
+                job.result = result
+
+                # mark as completed after processing
+                job.status = "completed"
+                jobs[job.id] = job
+
+                self.log(job, "completed")
+
             else:
                 # small sleep so CPU doesn't go crazy when queue is empty
                 time.sleep(0.5)
@@ -26,19 +45,20 @@ class Worker:
         job.status = "running"
 
         if job.type == "sleep":
-            self.handle_sleep(job)
+            return self.handle_sleep(job)
 
         elif job.type == "math":
-            self.handle_math(job)
+            return self.handle_math(job)
 
         elif job.type == "text":
-            self.handle_text(job)
+            return self.handle_text(job)
 
-        job.status = "done"
+        return None
 
     def handle_sleep(self, job):
         # simulates a task that takes time (like real background work)
         time.sleep(job.payload.get("duration", 1))
+        return "slept"
 
     def handle_math(self, job):
         # simple CPU-style task just to simulate computation

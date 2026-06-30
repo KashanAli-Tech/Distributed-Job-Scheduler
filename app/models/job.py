@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from uuid import uuid4
+from typing import Optional, Any
 
 
 class Job(BaseModel):
@@ -12,3 +13,5 @@ class Job(BaseModel):
     payload: dict = Field(default_factory=dict)
     # current state of the job
     status: str = "pending"
+    # result will be filled later by worker
+    result: Optional[Any] = None

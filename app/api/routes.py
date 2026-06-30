@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from app.models.job import Job
 from app.core.system import queue
+from app.core.system import jobs
 
 router = APIRouter()
 # shared queue instance so API + worker use same data
@@ -13,8 +14,25 @@ def submit_job(job: Job):
     # job gets created and pushed into queue
     queue.add_job(job)
 
+    jobs[job.id] = job
+
     return {
         "message": "job submitted",
         "job_id": job.id,
         "type": job.type
+    }
+
+@router.get("/job/{job_id}")
+def get_job(job_id: str):
+    job = job.get(job_id)
+
+    if not job:
+        return {"error": "Job not found"}
+    
+    return {
+        "id": job.id,
+        "type": job.type,
+        "status": job.status ,
+        "result": job.result,
+        "payload": job.payload
     }
