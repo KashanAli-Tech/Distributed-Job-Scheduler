@@ -1,10 +1,20 @@
-from core.queue import Queue
-from models.job import Job
+from fastapi import APIRouter
+from app.models.job import Job
+from app.core.system import queue
 
-queue = Queue()  # shared instance
+router = APIRouter()
+# shared queue instance so API + worker use same data
 
-def submit_job(data):
-    job = Job()
+
+@router.post("/submit-job")
+def submit_job(job: Job):
+    # API endpoint where user sends job data
+    # job gets created and pushed into queue
+
     queue.add_job(job)
 
-    
+    return {
+        "message": "job submitted",
+        "job_id": job.id,
+        "type": job.type
+    }
