@@ -1,11 +1,11 @@
 import time
-from app.core.system import jobs
 
 
 class Worker:
-    def __init__(self, queue):
+    def __init__(self, queue, jobs):
         # worker is basically the engine that keeps checking queue forever
         self.queue = queue
+        self.jobs = jobs
         self.running = True
 
     def start(self):
@@ -18,7 +18,7 @@ class Worker:
             if job:
                 # mark job as running before processing
                 job.status = "running"
-                jobs[job.id] = job
+                self.jobs[job.id] = job
 
                 self.log(job, "running")
 
@@ -30,7 +30,7 @@ class Worker:
 
                 # mark as completed after processing
                 job.status = "completed"
-                jobs[job.id] = job
+                self.jobs[job.id] = job
 
                 self.log(job, "completed")
 
@@ -41,8 +41,6 @@ class Worker:
     def process_job(self, job):
         # this decides what function to call based on job type
         # kind of like routing inside the worker
-
-        job.status = "running"
 
         if job.type == "sleep":
             return self.handle_sleep(job)
