@@ -1,11 +1,11 @@
-from app.core.queue import JobQueue
+from app.core.queue import Queue
 from app.core.worker import Worker
 
-
-# One shared queue for the whole application
-queue = JobQueue()
-# A central variable that stores all the jobs
+# central job storage (single source of truth)
 jobs = {}
 
-# Worker uses that same queue
-worker = Worker(queue)
+# shared queue
+queue = Queue()
+
+# worker gets everything injected (NO imports back into system inside worker)
+worker = Worker(queue, jobs)
