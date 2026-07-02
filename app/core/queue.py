@@ -21,3 +21,4 @@ class JobQueue:
     def size(self):
         # just to check how many jobs are waiting
         return len(self.queue)
+    
