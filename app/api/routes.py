@@ -24,7 +24,10 @@ def submit_job(job: Job):
 
 @router.get("/job/{job_id}")
 def get_job(job_id: str):
-    job = job.get(job_id)
+    job = jobs.get(job_id)
+
+    print("DEBUG job:", job)
+    print("DEBUG type:", type(job))
 
     if not job:
         return {"error": "Job not found"}
