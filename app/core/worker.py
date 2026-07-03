@@ -9,6 +9,7 @@ class Worker:
         self.running = True
 
     def start(self):
+        print(" REAL WORKER STARTED:", id(self))
         # infinite loop so worker never stops running
         # constantly checks if there are jobs to process
         while self.running:
@@ -16,6 +17,7 @@ class Worker:
             job = self.queue.get_job()
 
             if job:
+                print("Job Running started")
                 # mark job as running before processing
                 job.status = "running"
                 self.jobs[job.id] = job

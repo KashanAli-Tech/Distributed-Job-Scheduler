@@ -9,3 +9,4 @@ queue = JobQueue()
 
 # worker gets everything injected (NO imports back into system inside worker)
 worker = Worker(queue, jobs)
+print("WORKER INSTANCE ID:", id(worker))
