@@ -1,6 +1,24 @@
 from pydantic import BaseModel, Field
 from uuid import uuid4
 from typing import Optional, Any
+from enum import Enum
+
+
+# using Enum to preventing errors from using invalid values. 
+class JobPriority(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+
+
+# once again, using Enum to preventing errors from using invalid values.
+class JobStatus(str, Enum):
+    PENDING = "PENDING"
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+
 
 
 class Job(BaseModel):
@@ -15,3 +33,9 @@ class Job(BaseModel):
     status: str = "pending"
     # result will be filled later by worker
     result: Optional[Any] = None
+    
+    priority: JobPriority = JobPriority.MEDIUM
+    status: JobStatus = JobStatus.PENDING
+
+    retries: int = 0
+    max_retries: int = 3
