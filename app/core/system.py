@@ -1,12 +1,77 @@
-from app.core.queue import JobQueue
+import threading
+
+from app.core.queue import PriorityQueue
 from app.core.worker import Worker
 
-# central job storage (single source of truth)
-jobs = {}
 
-# shared queue
-queue = JobQueue()
+""" System = orchestrator of the whole job engine. Responsibilities of system:
+    create shared queue
+    create shared job registry
+    start multiple workers
+    manage threads """
 
-# worker gets everything injected (NO imports back into system inside worker)
-worker = Worker(queue, jobs)
-print("WORKER INSTANCE ID:", id(worker))
+class System:
+
+    def __init__(self, worker_count: int = 3):
+        # shared priority queue for all workers
+        self.queue = PriorityQueue()
+
+        # shared job registry (source of truth)
+        self.registry = {}
+
+        # lock to protect registry updates
+        self.registry_lock = threading.Lock()
+
+        # number of workers in the system
+        self.worker_count = worker_count
+
+        # store worker threads
+        self.threads = []
+
+        # store worker objects
+        self.workers = []
+
+
+    # Boot the system and launch all workers.
+    def start(self):
+
+        print("Starting Distributed Job System...")
+
+        # create workers
+        for i in range(self.worker_count):
+
+            worker = Worker(
+                worker_id=i + 1,
+                queue=self.queue,
+                registry=self.registry,
+                registry_lock=self.registry_lock)
+
+            self.workers.append(worker)
+
+            # each worker runs in its own thread
+            thread = threading.Thread(target=worker.start)
+
+            thread.daemon = True  # allows program to exit cleanly
+            self.threads.append(thread)
+            thread.start()
+
+            print(f"Worker-{i + 1} started")
+
+        print("System fully running with worker pool")
+
+
+    # Expose queue to API layer so jobs can be submitted.
+    def get_queue(self):
+        return self.queue
+
+
+    # Expose registry so API can check job status.
+    def get_registry(self):
+        return self.registry
+
+    # Simple monitoring info 
+    def get_worker_stats(self):
+        return {
+            f"worker-{w.worker_id}": w.processed_count
+            for w in self.workers
+        }
