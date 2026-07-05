@@ -1,46 +1,56 @@
-from fastapi import APIRouter
-from app.models.job import Job
-from app.core.system import queue, jobs
+from fastapi import APIRouter, Request
+from app.models.job import Job, JobStatus
 
 router = APIRouter()
 # shared queue instance so API + worker use same data
 
 
 @router.post("/submit-job")
-def submit_job(job: Job):
+def submit_job(job: Job, request: Request):
     # API endpoint where user sends job data
 
-    # job gets created and pushed into queue
-    queue.add_job(job)
+    # Get the running System instance from FastAPI
+    system = request.app.state.system
 
-    # so now job means the specific job being handled at the time
-    jobs[job.id] = job
+    # Job has been accepted by the API
+    job.status = JobStatus.QUEUED
 
-    # return a message that job is submitted along with id and type.
+    # Store job in shared registry
+    system.registry[job.id] = job
+
+    # Add job into the shared priority queue
+    system.queue.put(job)
+
+
+    # return a message that job is submitted along with job_id, priority and status
     return {
-        "message": "job submitted",
+        "message": "Job submitted successfully",
         "job_id": job.id,
-        "type": job.type
+        "priority": job.priority,
+        "status": job.status
     }
 
 
 @router.get("/job/{job_id}")
-def get_job(job_id: str):
-    # get job from memory using id
-    job = jobs.get(job_id)
+def get_job(job_id: str, request: Request):
+    # Get the latest information about a job.
 
-    print("DEBUG job:", job)
-    print("DEBUG type:", type(job))
+    # Access the running System
+    system = request.app.state.system
 
-    # if job doesn't exist, return error
-    if not job:
+    # Look up the job
+    job = system.registry.get(job_id)
+
+    # Job doesn't exist
+    if job is None:
         return {"error": "Job not found"}
-    
-    # return job details
+
+    # Return current job information
     return {
         "id": job.id,
         "type": job.type,
+        "priority": job.priority,
         "status": job.status,
         "result": job.result,
-        "payload": job.payload
+        "retries": job.retries
     }
