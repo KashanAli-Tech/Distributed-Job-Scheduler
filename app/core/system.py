@@ -2,6 +2,7 @@ import threading
 
 from app.core.queue import PriorityQueue
 from app.core.worker import Worker
+from app.services.monitor import Monitor
 
 
 """ System = orchestrator of the whole job engine. Responsibilities of system:
@@ -31,6 +32,9 @@ class System:
         # store worker objects
         self.workers = []
 
+        # Monitoring system
+        self.monitor = Monitor()
+
 
     # Boot the system and launch all workers.
     def start(self):
@@ -44,7 +48,8 @@ class System:
                 worker_id=i + 1,
                 queue=self.queue,
                 registry=self.registry,
-                registry_lock=self.registry_lock)
+                registry_lock=self.registry_lock,
+                system=self)
 
             self.workers.append(worker)
 

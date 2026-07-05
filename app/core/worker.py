@@ -14,9 +14,10 @@ from app.models.job import JobStatus
 class Worker:
     
 
-    def __init__(self, worker_id: int, queue: PriorityQueue, registry: dict, registry_lock: threading.Lock):
+    def __init__(self, worker_id: int, queue: PriorityQueue, registry: dict, registry_lock: threading.Lock, system):
         self.worker_id = worker_id
         self.queue = queue
+        self.system = system
 
         # shared job storage
         self.registry = registry
@@ -86,6 +87,7 @@ class Worker:
         with self.registry_lock:
             job.result = result
             job.status = JobStatus.SUCCESS
+            self.system.monitor.record_success()
             self.registry[job.id] = job
 
         self.processed_count += 1
@@ -111,6 +113,7 @@ class Worker:
             else:
                 # FINAL FAILURE - Declare the job as FAILED
                 job.status = JobStatus.FAILED
+                self.system.monitor.record_failure()
                 self.registry[job.id] = job
 
                 self.log(f"Job {job.id} permanently FAILED")
