@@ -54,3 +54,26 @@ def get_job(job_id: str, request: Request):
         "result": job.result,
         "retries": job.retries
     }
+
+@router.get("/metrics")
+def get_metrics(request: Request):
+    # Returns system-wide monitoring data
+
+    # Get the running System instance from the FastAPI application
+    system = request.app.state.system
+
+    
+    return {
+        # Show how many jobs are waiting in each priority queue
+        "queue_sizes": {
+            "high": len(system.queue.high),
+            "medium": len(system.queue.medium),
+            "low": len(system.queue.low),
+        },
+
+        # Show how many jobs each worker has processed
+        "workers": system.get_worker_stats(),
+
+        # Show overall system metrics (successes, failures, total jobs, etc.)
+        "monitor": system.monitor.snapshot()
+    }
