@@ -3,6 +3,7 @@ import threading
 from app.core.queue import PriorityQueue
 from app.core.worker import Worker
 from app.services.monitor import Monitor
+from app.services.logger import setup_logger
 
 
 """ System = orchestrator of the whole job engine. Responsibilities of system:
@@ -35,11 +36,14 @@ class System:
         # Monitoring system
         self.monitor = Monitor()
 
+        # used for logging
+        self.logger = setup_logger()
+
 
     # Boot the system and launch all workers.
     def start(self):
 
-        print("Starting Distributed Job System...")
+        self.logger.info("Starting Distributed Job System...")
 
         # create workers
         for i in range(self.worker_count):
@@ -60,9 +64,9 @@ class System:
             self.threads.append(thread)
             thread.start()
 
-            print(f"Worker-{i + 1} started")
+            self.logger.info(f"Worker-{i + 1} started")
 
-        print("System fully running with worker pool")
+        self.logger.info("System fully running with worker pool")
 
 
     # Expose queue to API layer so jobs can be submitted.
