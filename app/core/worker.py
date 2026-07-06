@@ -136,13 +136,13 @@ class Worker:
     # JOB HANDLERS - Need to add more as the project expand
 
     def handle_sleep(self, job):
-        time.sleep(job.data.get("duration", 1))
+        time.sleep(job.payload.get("duration", 1))
         return {"status": "slept"}
 
     def handle_math(self, job):
-        data = job.data.get("data", [])
+        data = job.payload.get("data", [])
         return {"result": sum(data)}
 
     def handle_text(self, job):
-        text = job.data.get("text", "")
+        text = job.payload.get("text", "")
         return {"word_count": len(text.split())}
