@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.api.routes import router
 from app.core.system import System
+from app.persistence.database import get_connection
 
 # To test that main.py is successfully loaded
 print("MAIN.PY LOADED")
@@ -22,4 +23,8 @@ app.include_router(router)
 def startup():
     print("Starting Job System...")
     system.start()
+
+    # connection to the database and closing it straigth away for now
+    connection = get_connection()
+    connection.close()
 
