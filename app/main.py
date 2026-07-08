@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.api.routes import router
 from app.core.system import System
 from app.persistence.database import get_connection
+from app.persistence.tables import create_tables
 
 # To test that main.py is successfully loaded
 print("MAIN.PY LOADED")
@@ -21,9 +22,12 @@ app.include_router(router)
 # Starts the distributed worker pool.
 @app.on_event("startup")
 def startup():
+    
+    create_tables()
+
     print("Starting Job System...")
     system.start()
-
+    
     # connection to the database and closing it straigth away for now
     connection = get_connection()
     connection.close()
