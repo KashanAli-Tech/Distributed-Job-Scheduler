@@ -13,30 +13,17 @@ def create_tables():
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS jobs (
-
-            -- Unique ID for each job
             id TEXT PRIMARY KEY,
-
-            -- The actual task the worker needs to run
-            task TEXT NOT NULL,
-
-            -- Job priority 
+            type TEXT NOT NULL,
+            payload TEXT NOT NULL,
             priority TEXT NOT NULL,
-
-            -- Current state of the job
             status TEXT NOT NULL,
-
-            -- Number of times this job has been retried
             retries INTEGER DEFAULT 0,
-
-            -- Output returned after successful completion
+            max_retries INTEGER NOT NULL,
             result TEXT,
-
-            -- Error message if the job fails
             error TEXT
         )
-        """
-    )
+        """)
 
     # Save the table creation.
     connection.commit()
