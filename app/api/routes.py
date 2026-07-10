@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Request
-from app.models.job import Job, JobStatus
+from app.models.job import Job
+from app.services.job_service import submit_job as submit_job_service
 
 router = APIRouter()
 # shared queue instance so API + worker use same data
@@ -12,14 +13,8 @@ def submit_job(job: Job, request: Request):
     # Get the running System instance from FastAPI
     system = request.app.state.system
 
-    # Job has been accepted by the API
-    job.status = JobStatus.QUEUED
-
-    # Store job in shared registry
-    system.registry[job.id] = job
-
-    # Add job into the shared priority queue
-    system.queue.put(job)
+    # The service handles saving, registry, and queue operations.
+    submit_job_service(job, system)
 
 
     # return a message that job is submitted along with job_id, priority and status
