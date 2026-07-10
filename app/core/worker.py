@@ -4,6 +4,7 @@ import random
 
 from app.core.queue import PriorityQueue
 from app.models.job import JobStatus
+from app.persistence.job_store import update_job
 
 """ Worker = simulated "node" in a distributed system. It:
      pulls jobs from shared queue
@@ -64,6 +65,7 @@ class Worker:
         with self.registry_lock:
             job.status = JobStatus.RUNNING
             self.registry[job.id] = job
+            update_job(job)
 
         # simulate processing time 
         time.sleep(random.uniform(0.5, 2.0))
@@ -89,6 +91,7 @@ class Worker:
             job.status = JobStatus.SUCCESS
             self.system.monitor.record_success()
             self.registry[job.id] = job
+            update_job(job)
 
         self.processed_count += 1
         self.log(f"Completed job {job.id}")
