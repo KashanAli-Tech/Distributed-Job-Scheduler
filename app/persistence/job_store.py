@@ -51,3 +51,40 @@ def save_job(job: Job):
 
     connection.commit()
     connection.close()
+
+# Update an existing job in the database.
+def update_job(job: Job):
+ 
+    # Open a connection to SQLite.
+    connection = get_connection()
+
+    # Cursor allows us to execute SQL commands.
+    cursor = connection.cursor()
+
+    # Update the existing job row.
+    cursor.execute(
+        """
+        UPDATE jobs
+        SET
+            status = ?,
+            retries = ?,
+            result = ?
+        WHERE id = ?
+        """,
+        (
+            # Current job status
+            job.status.value,
+
+            # Current retry count
+            job.retries,
+
+            # Result after completing the job
+            json.dumps(job.result),
+
+            # Find the correct job using its ID
+            job.id,
+        ),
+    )
+
+    connection.commit()
+    connection.close()
