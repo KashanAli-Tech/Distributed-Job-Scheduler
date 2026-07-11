@@ -68,21 +68,23 @@ def update_job(job: Job):
         SET
             status = ?,
             retries = ?,
-            result = ?
+            result = ?,
+            error = ?
         WHERE id = ?
         """,
         (
-            # Current job status
+            (
             job.status.value,
-
-            # Current retry count
             job.retries,
 
-            # Result after completing the job
-            json.dumps(job.result),
+            # Save the job result as JSON text and If there isn't a result yet, save NULL instead.
+            json.dumps(job.result) if job.result is not None else None,
 
-            # Find the correct job using its ID
+            # Save an error message if one exists. getattr(...) safely returns None if the Job doesn't have an "error" attribute yet.
+            getattr(job, "error", None),
+            
             job.id,
+)
         ),
     )
 
