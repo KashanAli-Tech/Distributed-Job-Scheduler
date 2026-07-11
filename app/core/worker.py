@@ -64,8 +64,8 @@ class Worker:
         # mark job as RUNNING (safe update)
         with self.registry_lock:
             job.status = JobStatus.RUNNING
-            self.registry[job.id] = job
             update_job(job)
+            self.registry[job.id] = job
 
         # simulate processing time 
         time.sleep(random.uniform(0.5, 2.0))
@@ -89,9 +89,9 @@ class Worker:
         with self.registry_lock:
             job.result = result
             job.status = JobStatus.SUCCESS
-            self.system.monitor.record_success()
-            self.registry[job.id] = job
             update_job(job)
+            self.registry[job.id] = job
+            self.system.monitor.record_success()
 
         self.processed_count += 1
         self.log(f"Completed job {job.id}")
@@ -126,8 +126,8 @@ class Worker:
                 job.error = "Maximum retries exceeded"
 
                 update_job(job)
-                self.system.monitor.record_failure()
                 self.registry[job.id] = job
+                self.system.monitor.record_failure()
                 self.log(f"Job {job.id} permanently FAILED")
     
     # Routes job to correct handler based on type.
