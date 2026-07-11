@@ -33,7 +33,8 @@ class Job(BaseModel):
 
     # result will be filled later by worker
     result: Optional[Any] = None
-    
+    # reason why a job failed
+    error: Optional[str] = None
     # priority of the job
     priority: JobPriority = JobPriority.MEDIUM
 

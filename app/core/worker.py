@@ -101,26 +101,34 @@ class Worker:
     def handle_failure(self, job):
 
         with self.registry_lock:
+
+            # Increase retry counter.
             job.retries += 1
 
             self.log(f"Job {job.id} FAILED (retry {job.retries})")
 
-            # RETRY LOGIC
             if job.retries <= job.max_retries:
-                job.status = JobStatus.QUEUED
 
-                # push job back into queue for retry
+                # Put job back into queue.
+                job.status = JobStatus.QUEUED
+                update_job(job)
+
+                # Re-submit job for another attempt.
                 self.queue.put(job)
+
                 self.log(f"Re-queued job {job.id} for retry")
 
+
             else:
-                # FINAL FAILURE - Declare the job as FAILED
                 job.status = JobStatus.FAILED
+
+                # Store why the job permanently failed.
+                job.error = "Maximum retries exceeded"
+
+                update_job(job)
                 self.system.monitor.record_failure()
                 self.registry[job.id] = job
-
                 self.log(f"Job {job.id} permanently FAILED")
-
     
     # Routes job to correct handler based on type.
     def execute_job(self, job):
