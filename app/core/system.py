@@ -4,6 +4,7 @@ from app.core.queue import PriorityQueue
 from app.core.worker import Worker
 from app.services.monitor import Monitor
 from app.services.logger import setup_logger
+from app.persistence.job_store import load_unfinished_jobs
 
 
 """ System = orchestrator of the whole job engine. Responsibilities of system:
@@ -44,6 +45,19 @@ class System:
     def start(self):
 
         self.logger.info("Starting Distributed Job System...")
+
+        recovered_jobs = load_unfinished_jobs()
+        for job in recovered_jobs:
+
+            # Restore job in memory registry.
+            self.registry[job.id] = job
+
+            # and Put it back into worker queue.
+            self.queue.put(job)
+
+        self.logger.info(
+            f"Recovered {len(recovered_jobs)} unfinished jobs"
+        )
 
         # create workers
         for i in range(self.worker_count):

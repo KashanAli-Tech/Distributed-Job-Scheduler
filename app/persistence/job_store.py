@@ -1,7 +1,7 @@
 import json 
 
 from app.persistence.database import get_connection
-from app.models.job import Job
+from app.models.job import Job, JobPriority, JobStatus
 
 # As the name suggests, this function saves a job to database
 def save_job(job: Job):
@@ -90,3 +90,58 @@ def update_job(job: Job):
 
     connection.commit()
     connection.close()
+
+# Loads jobs that were not completed before a restart.
+def load_unfinished_jobs():
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    # Find jobs that were not finished.
+    cursor.execute(
+        """
+        SELECT
+            id,
+            type,
+            payload,
+            priority,
+            status,
+            retries,
+            max_retries,
+            result,
+            error
+        FROM jobs
+        WHERE status != ?
+        """,
+        (
+            # SUCCESS jobs do not need recovery.
+            JobStatus.SUCCESS.value,
+        ),
+    )
+
+    rows = cursor.fetchall()
+    connection.close()
+
+    jobs = []
+
+    # Convert database rows back into Job objects.
+    for row in rows:
+
+        job = Job(
+            id=row["id"],
+            type=row["type"],
+            payload=json.loads(row["payload"]),
+            priority=JobPriority(row["priority"]),
+            status=JobStatus(row["status"]),
+            retries=row["retries"],
+            max_retries=row["max_retries"],
+
+            # Convert result back if it exists.
+            result=json.loads(row["result"]) if row["result"] else None,
+
+            error=row["error"],
+        )
+
+        jobs.append(job)
+
+    return jobs
