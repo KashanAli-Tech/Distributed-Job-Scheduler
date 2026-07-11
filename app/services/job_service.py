@@ -1,5 +1,5 @@
 from app.models.job import Job, JobStatus
-from app.persistence.job_store import save_job
+from app.persistence.job_store import save_job, update_job
 
 # Submit a job into the scheduler, update the status, and add it to priority queue
 def submit_job(job: Job, system):
@@ -17,4 +17,10 @@ def submit_job(job: Job, system):
     system.queue.put(job)
 
     # Return the updated job object.
+    return job
+
+def update_job_state(job: Job):
+
+    update_job(job)
+
     return job
