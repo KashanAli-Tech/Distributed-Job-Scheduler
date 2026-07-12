@@ -1,203 +1,271 @@
-# Distributed Job Scheduler 
+# Distributed Job Scheduler
 
-## Overview
-
-This project is a Python-based distributed job scheduling system built using FastAPI. The goal is to understand how real-world backend systems handle background processing, concurrency, and fault tolerance.
-
-It is inspired by systems like Celery, AWS SQS, and general worker-based architectures used in production systems.
-
-The project is being developed in phases, with each phase gradually adding more realistic distributed systems behaviour.
+A backend project built with Python and FastAPI to explore how applications handle background tasks, queues, workers, and failures. The idea behind this project came from wanting to understand what happens when an application needs to run tasks that should not block the main API. Instead of processing everything immediately, jobs are placed into a queue and handled by background workers. I built this project in stages, gradually adding features such as priority scheduling, multiple workers, retries, and database recovery to understand how more reliable systems are designed.
 
 ---
 
-## Current Status
+# Features
 
-**Phase 3 Complete**
+## Background Job Processing
 
-At this stage, the system simulates a multi-worker job processing engine with basic fault tolerance and observability features.
-
-It is not production-ready, but it demonstrates the core ideas behind distributed job processing systems.
-
----
-
-## Key Features (Phase 3)
-
-### Multi-Worker Processing
-
-- Multiple worker threads process jobs concurrently
-- Workers share a common job queue
-- Ensures no duplicate processing of jobs
-
----
-
-### Priority-Based Scheduling
-
-Jobs are processed based on priority:
-
-- HIGH
-- MEDIUM
-- LOW
-
-Higher priority jobs are handled before lower priority ones.
-
----
-
-### Job Lifecycle
-
-Each job moves through a defined lifecycle:
+Jobs are submitted through a FastAPI API and processed separately by worker threads.
 
 ```
-PENDING → QUEUED → RUNNING → SUCCESS
+API Request
+     |
+Job Queue
+     |
+Worker Pool
+     |
+Task Execution
+     |
+Update Job Status
 ```
 
-If failures occur:
+This separates job submission from execution, allowing tasks to run in the background.
+
+---
+
+## Priority Queue
+
+Jobs are assigned different priority levels:
+
+- High
+- Medium
+- Low
+
+The scheduler uses these priorities to decide which jobs should be processed first.
+
+---
+
+## Multiple Workers
+
+The system uses a worker pool to process multiple jobs concurrently. I am using 3 workers for now but I will add more in future.
+
+Example:
 
 ```
-RUNNING → FAILED → (retry if available)
+Worker-1
+Worker-2
+Worker-3
+```
+
+Each worker is responsible for:
+
+- Taking jobs from the queue
+- Running the task
+- Updating the job status
+- Saving results
+
+Thread locks are used when accessing shared data to reduce conflicts between workers.
+
+---
+
+## Failure Handling
+
+Jobs can fail during execution, allowing the system to test how failures are handled.
+
+If a job fails:
+
+```
+RUNNING → FAILED → QUEUED → RUNNING
+```
+
+The scheduler retries the job until the maximum retry limit is reached.
+
+If all retries fail, the job is marked as permanently failed.
+
+---
+
+## Database Persistence & Recovery
+
+Earlier versions of the project stored jobs only in memory, meaning all information would be lost after restarting the application.
+
+To solve this, SQLite persistence was introduced.
+
+The database stores:
+
+- Job details
+- Current status
+- Priority
+- Retry attempts
+- Results
+- Errors
+
+When the application starts, unfinished jobs are recovered and added back into the queue.
+
+---
+
+# System Architecture
+
+```
+                 User
+                   |
+              FastAPI API
+                   |
+              Job Service
+                   |
+        -----------------------
+        |                     |
+ Priority Qeueu        SQLite Database
+        |
+   Worker Pool
+        |
+   -------------
+   |     |     |
+  W1    W2    W3
+        |
+   Job Execution
 ```
 
 ---
 
-### Fault Tolerance (Simulated)
+# Development Phases
 
-To mimic real-world system behaviour:
+This project was built incrementally rather than all at once.
 
-- Jobs can fail randomly during execution
-- Failed jobs are retried up to a fixed limit
-- Jobs exceeding retry limits are marked as failed permanently
+## Phase 1: Basic Scheduler
 
----
+Created the foundation:
 
-### Observability
-
-The system includes basic monitoring features:
-
-- Total jobs processed
-- Successful vs failed jobs
-- Worker-level job counts
-- Queue size breakdown by priority
+- FastAPI API
+- Job submission
+- Basic task execution
+- Job tracking
 
 ---
 
-### Logging
+## Phase 2: Queue & Workers
 
-Structured logging has been added to help track system behaviour, including:
+Moved task execution away from the API layer.
 
-- Worker startup events
-- Job execution flow
-- Failures and retries
-- Completion states
+Implemented:
 
----
-
-### REST API
-
-Built using FastAPI:
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/submit-job` | Submit a new job |
-| GET | `/job/{job_id}` | Get job status |
-| GET | `/metrics` | View system metrics |
+- Job queue
+- Background workers
+- Asynchronous processing
 
 ---
 
-## Architecture (High Level)
+## Phase 3: Improving Reliability
+
+Focused on making the scheduler more realistic.
+
+Added:
+
+- Multiple workers
+- Priority scheduling
+- Retry handling
+- Logging
+- Monitoring
+
+---
+
+## Phase 4: Persistence & Recovery
+
+Focused on making the system more resilient.
+
+Added:
+
+- SQLite database storage
+- Job recovery after restart
+- Database locking for concurrent updates
+
+---
+
+# API Endpoints
+
+## Submit Job
 
 ```
-FastAPI API Layer
-        ↓
-System Orchestrator
-        ↓
-Priority Queue
-        ↓
-Worker Pool (Threads)
-        ↓
-Shared Job Registry
+POST /submit-job
 ```
+
+Creates a new job and places it into the scheduler.
 
 ---
 
-## Technologies Used
+## View Job
+
+```
+GET /job/{job_id}
+```
+
+Returns information about a job:
+
+- Status
+- Result
+- Error details
+- Retry count
+
+---
+
+## Metrics
+
+```
+GET /metrics
+```
+
+Displays information about:
+
+- Queue size
+- Worker activity
+- Job statistics
+
+---
+
+# Tech Stack
 
 - Python
 - FastAPI
-- Pydantic
+- SQLite
+- Pydentic
 - Threading
-- Logging
 - UUID
-- Collections (deque)
+- Logging
 
 ---
 
-## Software Development Approach
+# Future Improvements
 
-This project follows an **iterative development approach (similar to incremental SDLC)**.
+## Phase 5: Dashboard
 
-Instead of building everything at once, the system is developed step-by-step in phases. Each phase introduces new features while improving the architecture.
+A React dashboard connected to the FastAPI backend.
 
-This makes it easier to:
+Planned features:
 
-- Understand system design progressively
-- Test individual components in isolation
-- Refactor safely as complexity increases
-
----
-
-## Limitations (Current Phase)
-
-This system is still a learning implementation and has some limitations:
-
-- In-memory only (no persistence)
-- Workers run as threads, not separate processes
-- No distributed messaging system (e.g. Redis, Kafka)
-- No persistence across restarts
-
-These are intentionally left for future phases.
+- Submit jobs through a user interface
+- View running and completed jobs
+- Monitor worker activity
+- Visualise scheduler metrics
 
 ---
 
-## Planned Future Improvements
+## Possible Future Ideas
 
-### Phase 4 (Planned)
-
-- Introduce Redis-based queueing
-- Persistent job storage (SQLite or Redis)
-- Job recovery after restart
-
----
-
-### Phase 5 (Planned)
-
-- Real-time monitoring dashboard
-- WebSocket-based updates
-- Live job tracking interface
+- Redis/RabbitMQ message queues
+- Separate worker processes
+- Distributed workers
+- More advanced scheduling strategies
 
 ---
 
-### Phase 6 (Long-term ideas)
+# What I Learned
 
-- Distributed worker processes (multi-machine simulation)
-- Advanced scheduling policies
-- Dead-letter queues
-- Rate limiting and backpressure handling
+Building this project helped me understand:
 
----
-
-## Learning Outcomes
-
-This project helped me understand:
-
-- How job queues work internally
-- How concurrency is managed with threads
-- Basic distributed systems design concepts
-- Fault tolerance through retries
-- System observability and monitoring
-
-The focus is on understanding **how these systems work under the hood**, rather than building a production-grade replacement.
+- How backend services are structured
+- Why queues are useful for background processing
+- The challenges of running tasks concurrently
+- How systems handle failures and recovery
+- The importance of designing software in smaller stages
 
 ---
 
-## Final Note
+# Current Status
 
-This is an educational project and is still evolving. The goal is to gradually move from a simple API-based system to a more realistic distributed job processing architecture over time.
+**Phase 4 Complete ✅**
+
+Next step:
+
+Building a React dashboard to monitor and interact with the scheduler.
