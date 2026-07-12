@@ -107,7 +107,7 @@ When the application starts, unfinished jobs are recovered and added back into t
                    |
         -----------------------
         |                     |
- Priority Qeueu        SQLite Database
+ Priority Queue        SQLite Database
         |
    Worker Pool
         |
