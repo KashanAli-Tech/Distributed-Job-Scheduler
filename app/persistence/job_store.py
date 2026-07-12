@@ -116,11 +116,15 @@ def load_unfinished_jobs():
             result,
             error
         FROM jobs
-        WHERE status != ?
+        WHERE status IN (?, ?, ?)
         """,
-        (
-            # SUCCESS jobs do not need recovery.
-            JobStatus.SUCCESS.value,
+        
+            (
+            # Only recover jobs that were not finished.
+            JobStatus.PENDING.value,
+            JobStatus.QUEUED.value,
+            JobStatus.RUNNING.value,
+        
         ),
     )
 
