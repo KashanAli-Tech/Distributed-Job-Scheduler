@@ -157,3 +157,6 @@ class Worker:
     def handle_text(self, job):
         text = job.payload.get("text", "")
         return {"word_count": len(text.split())}
+    
+    
+  

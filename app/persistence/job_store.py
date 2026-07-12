@@ -78,7 +78,7 @@ def update_job(job: Job):
             WHERE id = ?
             """,
             (
-                (
+                
                 job.status.value,
                 job.retries,
 
@@ -89,7 +89,7 @@ def update_job(job: Job):
                 getattr(job, "error", None),
                 
                 job.id,
-    )
+    
             ),
         )
 
