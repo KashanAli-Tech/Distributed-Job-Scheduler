@@ -226,6 +226,40 @@ Displays information about:
 
 ---
 
+## Screenshots
+
+### System Startup
+
+Shows the scheduler starting, initializing components, and creating worker threads.
+
+![System Startup](docs/screenshots/system-startup.png)
+
+---
+
+### API Interface
+
+FastAPI automatically generates a Swagger interface for testing and exploring the scheduler endpoints.
+
+![FastAPI Swagger Interface](docs/screenshots/swagger-api-interface.png)
+
+---
+
+### Worker Processing
+
+Shows background workers retrieving and completing queued jobs.
+
+![Worker Job Processing](docs/screenshots/worker-job-processing.png)
+
+---
+
+### Database Persistence
+
+Shows jobs being stored and persisted using SQLite.
+
+![Database Persistence](docs/screenshots/database-persistence.png)
+
+---
+
 # Future Improvements
 
 ## Phase 5: Dashboard

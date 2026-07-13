@@ -1,1 +1,0 @@
-use BaseModel from pydantic when defining data shape, want validation and handling API input/output as u dont need to write the __init__
