@@ -1,5 +1,17 @@
+# Ignore generated files
+
+# Virtual environment
 .venv/
+
+# Python cache
 __pycache__/
 *.pyc
-.vscode/
+
+# Database files
+*.db
+
+# Environment variables
 .env
+
+# Editor settings
+.vscode/
