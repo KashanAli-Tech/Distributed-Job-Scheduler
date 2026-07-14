@@ -6,47 +6,32 @@ from app.core.queue import PriorityQueue
 from app.models.job import JobStatus
 from app.persistence.job_store import update_job
 
-""" Worker = simulated "node" in a distributed system. It:
-     pulls jobs from shared queue
-     processes them
-     may fail randomly
-     retries failed jobs
-     updates shared registry safely """
+
 class Worker:
     
-
     def __init__(self, worker_id: int, queue: PriorityQueue, registry: dict, registry_lock: threading.Lock, system):
         self.worker_id = worker_id
         self.queue = queue
         self.system = system
-
-        # shared job storage
         self.registry = registry
-
-        # protects shared dict updates
         self.registry_lock = registry_lock
-
-        # worker state
         self.running = True
         self.processed_count = 0
 
-    # Standard debug output for tracing worker behaviour
+
+    # debug output for tracing worker behaviour
     def log(self, message: str):
         print(f"[Worker-{self.worker_id}] {message}")
 
 
-    # Main worker loop.
-    # Continuously fetches jobs and processes them.       
+    # continuously fetches jobs and processes them.       
     def start(self):
         
         self.log("Started")
 
         while self.running:
-
-            # get next available job (priority aware)
             job = self.queue.get()
-
-            # if no job available, sleep
+            # if no job available, sleep for 0.5 sec
             if not job:
                 time.sleep(0.5)
                 continue
@@ -54,14 +39,10 @@ class Worker:
             self.process_job(job)
 
 
-    # Full lifecycle handler:
-    # RUNNING then SUCCESS or FAILED (with retry logic)
     def process_job(self, job):
         
-
         self.log(f"Picked job {job.id}")
 
-        # mark job as RUNNING (safe update)
         with self.registry_lock:
             job.status = JobStatus.RUNNING
             update_job(job)
@@ -72,18 +53,12 @@ class Worker:
 
   
         # simulate random FAILURE
-        failure_chance = 0.25  # 25% failure rate
-
-        # Generate a random number between 0 and 1 and
-        # If it's less than 0.25, we simulate a job failure
+        failure_chance = 0.25  # 25% failure rate for now
         if random.random() < failure_chance:
             self.handle_failure(job)
-
-            # Stop processing this job immediately
-            # (we don't continue to success path)
             return
+        
 
-        # If the the job didn't fail, then SUCCESS PATH
         result = self.execute_job(job)
 
         with self.registry_lock:
@@ -97,40 +72,30 @@ class Worker:
         self.log(f"Completed job {job.id}")
 
     
-    # Handles retry logic and failure states.
+    # handles retry logic and failure states.
     def handle_failure(self, job):
 
         with self.registry_lock:
-
-            # Increase retry counter.
             job.retries += 1
-
             self.log(f"Job {job.id} FAILED (retry {job.retries})")
 
             if job.retries <= job.max_retries:
-
-                # Put job back into queue.
                 job.status = JobStatus.QUEUED
                 update_job(job)
 
-                # Re-submit job for another attempt.
+                # resubmit job for another attempt.
                 self.queue.put(job)
-
-                self.log(f"Re-queued job {job.id} for retry")
-
+                self.log(f"Requeued job {job.id} for retry")
 
             else:
                 job.status = JobStatus.FAILED
-
-                # Store why the job permanently failed.
                 job.error = "Maximum retries exceeded"
-
                 update_job(job)
                 self.registry[job.id] = job
                 self.system.monitor.record_failure()
                 self.log(f"Job {job.id} permanently FAILED")
     
-    # Routes job to correct handler based on type.
+    # gives job to correct handler based on type.
     def execute_job(self, job):
         
         if job.type == "sleep":
@@ -144,7 +109,7 @@ class Worker:
 
         return {"error": "unknown job type"}
 
-    # JOB HANDLERS - Need to add more as the project expand
+    # Note: Need to add more job handlers as the project expand
 
     def handle_sleep(self, job):
         time.sleep(job.payload.get("duration", 1))

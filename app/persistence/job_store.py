@@ -3,20 +3,18 @@ import json
 from app.persistence.database import get_connection, database_lock
 from app.models.job import Job, JobPriority, JobStatus
 
-# As the name suggests, this function saves a job to database
+# saves a job to database
 def save_job(job: Job):
     
-    # using database lock so that only one worker can write to SQLite at a time.
     with database_lock:
 
         connection = get_connection()
         cursor = connection.cursor()
 
-        # Insert the job data into the jobs table.
+        # executes the sql query to save a job into database
         cursor.execute(
             """
-            INSERT INTO jobs (
-                id,
+            INSERT INTO jobs (id,
                 type,
                 payload,
                 priority,
@@ -24,30 +22,23 @@ def save_job(job: Job):
                 retries,
                 max_retries,
                 result,
-                error
-            )
+                error)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) 
-            """,  # parameterised query = SQL structure first, then give values separately
+            """,  
             (
                 job.id,
                 job.type,
 
-                # Convert dictionary into JSON text
+                # convert dictionary into JSON text
                 json.dumps(job.payload),
-
-                # Convert Enum into string
                 job.priority.value,
-
-                # Convert Enum into string
                 job.status.value,
-
                 job.retries,
                 job.max_retries,
 
-                # Result starts as None
                 job.result,
 
-                # Error starts as None aswell
+                # error starts as None aswell
                 None,
             ),
         )
@@ -55,18 +46,14 @@ def save_job(job: Job):
         connection.commit()
         connection.close()
 
-# Update an existing job in the database.
+# update an existing job in the database.
 def update_job(job: Job):
  
     with database_lock:
-
-        # Open a connection to SQLite.
         connection = get_connection()
-
-        # Cursor allows us to execute SQL commands.
         cursor = connection.cursor()
 
-        # Update the existing job row.
+        # executes the sql query to update a job from database
         cursor.execute(
             """
             UPDATE jobs
@@ -81,28 +68,24 @@ def update_job(job: Job):
                 
                 job.status.value,
                 job.retries,
-
-                # Save the job result as JSON text and If there isn't a result yet, save NULL instead.
+                # save the job result as JSON text and If there isn't a result yet, save as NULL
                 json.dumps(job.result) if job.result is not None else None,
-
-                # Save an error message if one exists. getattr(...) safely returns None if the Job doesn't have an "error" attribute yet.
+                # returns None if the job doesn't have an "error" attribute yet
                 getattr(job, "error", None),
-                
                 job.id,
-    
             ),
         )
 
         connection.commit()
         connection.close()
 
-# Loads jobs that were not completed before a restart.
+# loads jobs that were not completed before a restart.
 def load_unfinished_jobs():
 
     connection = get_connection()
     cursor = connection.cursor()
 
-    # Find jobs that were not finished.
+        # executes the sql query to find unfinished jobs
     cursor.execute(
         """
         SELECT
@@ -120,7 +103,6 @@ def load_unfinished_jobs():
         """,
         
             (
-            # Only recover jobs that were not finished.
             JobStatus.PENDING.value,
             JobStatus.QUEUED.value,
             JobStatus.RUNNING.value,
@@ -130,10 +112,9 @@ def load_unfinished_jobs():
 
     rows = cursor.fetchall()
     connection.close()
-
     jobs = []
 
-    # Convert database rows back into Job objects.
+    # convert database rows back into Job objects.
     for row in rows:
 
         job = Job(
@@ -144,13 +125,8 @@ def load_unfinished_jobs():
             status=JobStatus(row["status"]),
             retries=row["retries"],
             max_retries=row["max_retries"],
-
-            # Convert result back if it exists.
             result=json.loads(row["result"]) if row["result"] else None,
-
             error=row["error"],
         )
-
         jobs.append(job)
-
     return jobs

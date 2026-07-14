@@ -1,15 +1,11 @@
 from app.persistence.database import get_connection
 
-# Create the database tables if they do not already exist.
+# create the database table if it does not already exist.
 def create_tables():
-    
-    # Open a connection to SQLite.
     connection = get_connection()
-
-    # send SQL commands to the database.
     cursor = connection.cursor()
 
-    # Create our jobs table.
+    # execute a sql query to create a table.
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS jobs (
@@ -25,8 +21,5 @@ def create_tables():
         )
         """)
 
-    # Save the table creation.
     connection.commit()
-
-    # Close the database connection.
     connection.close()

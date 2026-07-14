@@ -5,30 +5,25 @@ from app.core.system import System
 from app.persistence.database import get_connection
 from app.persistence.tables import create_tables
 
-# To test that main.py is successfully loaded
-print("MAIN.PY LOADED")
-# Create FastAPI app
+# create FastAPI app
 app = FastAPI()
 
-# Create ONE system instance
+# create one system instance with 3 workers for now
 system = System(worker_count=3)
-
-# Save it inside FastAPI so every route can access it
 app.state.system = system
 
-# Register API routes
+# register API routes
 app.include_router(router)
 
-# Starts the distributed worker pool.
+# starts the distributed worker pool
 @app.on_event("startup")
 def startup():
     
     create_tables()
 
-    print("Starting Job System...")
+    print("Starting Job Scheduler: ")
     system.start()
     
-    # connection to the database and closing it straigth away for now
     connection = get_connection()
     connection.close()
 
