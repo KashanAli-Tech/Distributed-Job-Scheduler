@@ -1,8 +1,8 @@
 from app.persistence.database import get_connection
 
 # create the database table if it does not already exist.
-def create_tables():
-    connection = get_connection()
+def create_tables(database_path=None):
+    connection = get_connection(database_path)
     cursor = connection.cursor()
 
     # execute a sql query to create a table.
