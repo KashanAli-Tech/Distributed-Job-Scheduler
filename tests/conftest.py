@@ -45,7 +45,5 @@ def sample_job():
 def temp_database(tmp_path):
 
     database_file = tmp_path / "test_scheduler.db"
-    connection = get_connection(database_file)
-    create_tables(connection)
-    connection.close()
+    create_tables(database_file)    
     return database_file
