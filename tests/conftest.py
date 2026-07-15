@@ -3,6 +3,8 @@ import threading
 
 from app.models.job import Job, JobPriority
 from app.core.queue import PriorityQueue
+from app.persistence.database import get_connection
+from app.persistence.tables import create_tables
 
 # fake version of actual monitor for testing 
 class FakeMonitor:
@@ -37,3 +39,13 @@ def sample_job():
         payload={"data": [1, 2, 3]},
         priority=JobPriority.HIGH
     )
+
+# the temporary database on which i will be performing tests
+@pytest.fixture
+def temp_database(tmp_path):
+
+    database_file = tmp_path / "test_scheduler.db"
+    connection = get_connection(database_file)
+    create_tables(connection)
+    connection.close()
+    return database_file

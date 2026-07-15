@@ -4,11 +4,11 @@ from app.persistence.database import get_connection, database_lock
 from app.models.job import Job, JobPriority, JobStatus
 
 # saves a job to database
-def save_job(job: Job):
+def save_job(job: Job, database_path=None):
     
     with database_lock:
 
-        connection = get_connection()
+        connection = get_connection(database_path)
         cursor = connection.cursor()
 
         # executes the sql query to save a job into database
@@ -47,10 +47,10 @@ def save_job(job: Job):
         connection.close()
 
 # update an existing job in the database.
-def update_job(job: Job):
+def update_job(job: Job, database_path=None):
  
     with database_lock:
-        connection = get_connection()
+        connection = get_connection(database_path)
         cursor = connection.cursor()
 
         # executes the sql query to update a job from database
@@ -80,9 +80,9 @@ def update_job(job: Job):
         connection.close()
 
 # loads jobs that were not completed before a restart.
-def load_unfinished_jobs():
+def load_unfinished_jobs(database_path=None):
 
-    connection = get_connection()
+    connection = get_connection(database_path)
     cursor = connection.cursor()
 
         # executes the sql query to find unfinished jobs
