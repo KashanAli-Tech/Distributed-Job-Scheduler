@@ -45,7 +45,7 @@ class Worker:
 
         with self.registry_lock:
             job.status = JobStatus.RUNNING
-            update_job(job)
+            update_job(job, self.system.database_path)
             self.registry[job.id] = job
 
         # simulate processing time 
@@ -64,7 +64,7 @@ class Worker:
         with self.registry_lock:
             job.result = result
             job.status = JobStatus.SUCCESS
-            update_job(job)
+            update_job(job, self.system.database_path)
             self.registry[job.id] = job
             self.system.monitor.record_success()
 
@@ -81,7 +81,7 @@ class Worker:
 
             if job.retries <= job.max_retries:
                 job.status = JobStatus.QUEUED
-                update_job(job)
+                update_job(job, self.system.database_path)
 
                 # resubmit job for another attempt.
                 self.queue.put(job)
@@ -90,7 +90,7 @@ class Worker:
             else:
                 job.status = JobStatus.FAILED
                 job.error = "Maximum retries exceeded"
-                update_job(job)
+                update_job(job, self.system.database_path)
                 self.registry[job.id] = job
                 self.system.monitor.record_failure()
                 self.log(f"Job {job.id} permanently FAILED")

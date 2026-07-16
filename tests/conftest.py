@@ -20,16 +20,16 @@ class FakeMonitor:
 
 # fake version of actual system for testing 
 class FakeSystem:
-    def __init__(self):
+    def __init__(self, database_path):
         self.registry = {}
         self.queue = PriorityQueue()
         self.registry_lock = threading.Lock()
         self.monitor = FakeMonitor()
-
+        self.database_path = database_path
 
 @pytest.fixture
-def system():
-    return FakeSystem()
+def system(temp_database):
+    return FakeSystem(temp_database)
 
 # the sample job which i will be using throughout tests
 @pytest.fixture
