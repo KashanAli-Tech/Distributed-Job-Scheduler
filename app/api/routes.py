@@ -57,3 +57,21 @@ def get_metrics(request: Request):
         "workers": system.get_worker_stats(),
         "monitor": system.monitor.snapshot()
     }
+
+@router.get("/jobs")
+def get_jobs(request: Request):
+    # returns a list of jobs
+
+    system = request.app.state.system
+
+    return [
+        {
+            "id": job.id,
+            "type": job.type,
+            "priority": job.priority,
+            "status": job.status,
+            "retries": job.retries,
+            "result": job.result,
+        }
+        for job in system.registry.values()
+    ]

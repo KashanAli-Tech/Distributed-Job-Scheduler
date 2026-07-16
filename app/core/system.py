@@ -5,6 +5,7 @@ from app.core.worker import Worker
 from app.services.monitor import Monitor
 from app.services.logger import setup_logger
 from app.persistence.job_store import load_unfinished_jobs
+from app.persistence.database import DATABASE_PATH
 
 
 
@@ -12,6 +13,7 @@ class System:
 
     def __init__(self, worker_count: int = 3):
         
+        self.database_path = DATABASE_PATH  # database path support
         self.queue = PriorityQueue() # shared priority queue for all workers
         self.registry = {} # shared job registry
         self.registry_lock = threading.Lock() # lock to protect registry updates
@@ -20,6 +22,7 @@ class System:
         self.workers = [] # store worker objects
         self.monitor = Monitor() # monitoring system
         self.logger = setup_logger() # used for logging
+        
 
 
     # boot the system and launch all workers.
