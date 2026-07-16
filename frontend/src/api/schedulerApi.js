@@ -13,3 +13,9 @@ export const getMetrics = () => {
     return API.get("/metrics");
 
 };
+
+export const getJobs = () => {
+
+    return API.get("/jobs");
+
+};

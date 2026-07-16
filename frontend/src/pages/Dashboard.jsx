@@ -1,49 +1,76 @@
 import { useEffect, useState } from "react";
 import { getMetrics } from "../api/schedulerApi";
+
 import StatCard from "../components/StatCard";
 import WorkerCard from "../components/WorkerCard";
 import Charts from "../components/Charts";
 
+
 function Dashboard() {
 
     const [metrics, setMetrics] = useState(null);
+
+
     useEffect(() => {
 
-    const fetchMetrics = () => {
+        const fetchMetrics = () => {
 
-        getMetrics()
-            .then(response => {
+            getMetrics()
+                .then(response => {
 
-                setMetrics(response.data);
+                    setMetrics(response.data);
 
-            })
-            .catch(error => {
+                })
+                .catch(error => {
 
-                console.error(error);
+                    console.error(error);
 
-            });
+                });
 
-    };
-
-
-    fetchMetrics();
+        };
 
 
-    const interval = setInterval(fetchMetrics, 5000);
+        fetchMetrics();
 
 
-    return () => clearInterval(interval);
+        const interval = setInterval(fetchMetrics, 5000);
 
 
-}, []);
+        return () => clearInterval(interval);
+
+
+    }, []);
+
+
+
+    if (!metrics) {
+
+        return (
+            <h1>
+                Loading dashboard...
+            </h1>
+        );
+
+    }
+
+
+
+    const queueSize =
+        metrics.queue_sizes.high +
+        metrics.queue_sizes.medium +
+        metrics.queue_sizes.low;
+
+
 
     return (
 
         <div>
 
+
             <h1>
                 Dashboard
             </h1>
+
 
 
             <h2>
@@ -51,31 +78,39 @@ function Dashboard() {
             </h2>
 
 
+
+
             <div>
 
-                <StatCard 
+
+                <StatCard
                     title="Total Jobs"
-                    value={metrics?.monitor?.total_jobs ?? 0}                />
+                    value={metrics.monitor.total_jobs}
+                />
 
 
-                <StatCard 
+                <StatCard
                     title="Completed Jobs"
-                    value={metrics?.monitor?.success_jobs ?? 0}
+                    value={metrics.monitor.success_jobs}
                 />
 
 
-                <StatCard 
+                <StatCard
                     title="Failed Jobs"
-                    value={metrics?.monitor?.failed_jobs ?? 0}
+                    value={metrics.monitor.failed_jobs}
                 />
 
 
-                <StatCard 
-                    title="Running Jobs"
-                    value="N/A"
+                <StatCard
+                    title="Queue Size"
+                    value={queueSize}
                 />
+
 
             </div>
+
+
+
 
 
             <h2>
@@ -83,24 +118,36 @@ function Dashboard() {
             </h2>
 
 
-            <WorkerCard
-                name="Worker-1"
-                status="RUNNING"
-            />
 
 
-            <WorkerCard
-                name="Worker-2"
-                status="IDLE"
-            />
+            <div>
 
 
-            <WorkerCard
-                name="Worker-3"
-                status="RUNNING"
-            />
+                {Object.entries(metrics.workers).map(
+                    ([worker, jobs]) => (
+
+                        <WorkerCard
+                            key={worker}
+                            name={worker}
+                            status={
+                                jobs > 0
+                                    ? "RUNNING"
+                                    : "IDLE"
+                            }
+                        />
+
+                    )
+                )}
+
+
+            </div>
+
+
+
 
             <Charts metrics={metrics}/>
+
+
 
         </div>
 
