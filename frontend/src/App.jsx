@@ -6,24 +6,30 @@ import SubmitJob from "./pages/SubmitJob";
 import Monitoring from "./pages/Monitoring";
 import JobDetails from "./pages/JobDetails";
 
+import Layout from "./components/Layout";
+
 
 function App() {
     return (
         <BrowserRouter>
 
-            <Routes>
+            <Layout>
 
-                <Route path="/" element={<Dashboard />} />
+                <Routes>
 
-                <Route path="/jobs" element={<Jobs />} />
+                    <Route path="/" element={<Dashboard />} />
 
-                <Route path="/submit" element={<SubmitJob />} />
+                    <Route path="/jobs" element={<Jobs />} />
 
-                <Route path="/monitoring" element={<Monitoring />} />
+                    <Route path="/submit" element={<SubmitJob />} />
 
-                <Route path="/jobs/:id" element={<JobDetails />} />
+                    <Route path="/monitoring" element={<Monitoring />} />
 
-            </Routes>
+                    <Route path="/jobs/:id" element={<JobDetails />} />
+
+                </Routes>
+
+            </Layout>
 
         </BrowserRouter>
     );
