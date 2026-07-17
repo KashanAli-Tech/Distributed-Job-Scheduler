@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Request
 from app.models.job import Job
 from app.services.job_service import submit_job as submit_job_service
+from app.monitoring.event_store import get_events
+from app.monitoring.retry_store import get_retries
+from app.monitoring.failure_store import get_failed_jobs
 
 # shared queue instance so API + worker use same data
 router = APIRouter()
@@ -76,3 +79,18 @@ def get_jobs(request: Request):
         }
         for job in system.registry.values()
     ]
+
+@router.get("/events")
+def get_system_events():
+    # returns live event logs
+    return get_events()
+
+@router.get("/retries")
+def get_retry_history():
+    # returns retry history
+    return get_retries()
+
+@router.get("/failed-jobs")
+def failed_jobs():
+    # returns failed jobs
+    return get_failed_jobs()

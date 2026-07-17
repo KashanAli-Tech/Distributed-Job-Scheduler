@@ -5,6 +5,9 @@ import random
 from app.core.queue import PriorityQueue
 from app.models.job import JobStatus
 from app.persistence.job_store import update_job
+from app.monitoring.event_store import add_event
+from app.monitoring.retry_store import add_retry
+from app.monitoring.failure_store import add_failed_job
 
 
 class Worker:
@@ -41,7 +44,7 @@ class Worker:
 
     def process_job(self, job):
         
-        self.log(f"Picked job {job.id}")
+        add_event(f"{self.worker_id} picked job {job.id}", "RUNNING")
 
         with self.registry_lock:
             job.status = JobStatus.RUNNING
@@ -69,7 +72,7 @@ class Worker:
             self.system.monitor.record_success()
 
         self.processed_count += 1
-        self.log(f"Completed job {job.id}")
+        add_event(f"{self.worker_id} completed job {job.id}", "SUCCESS")
 
     
     # handles retry logic and failure states.
@@ -77,7 +80,8 @@ class Worker:
 
         with self.registry_lock:
             job.retries += 1
-            self.log(f"Job {job.id} FAILED (retry {job.retries})")
+            add_retry(job, "Job execution failed")
+            add_event(f"{self.worker_id} failed job {job.id}", "FAILED")
 
             if job.retries <= job.max_retries:
                 job.status = JobStatus.QUEUED
@@ -89,6 +93,7 @@ class Worker:
 
             else:
                 job.status = JobStatus.FAILED
+                add_failed_job(job, job.error)
                 job.error = "Maximum retries exceeded"
                 update_job(job, self.system.database_path)
                 self.registry[job.id] = job
@@ -109,7 +114,7 @@ class Worker:
 
         return {"error": "unknown job type"}
 
-    # Note: Need to add more job handlers as the project expand
+    # Note: I will add more job handlers as the project expand
 
     def handle_sleep(self, job):
         time.sleep(job.payload.get("duration", 1))

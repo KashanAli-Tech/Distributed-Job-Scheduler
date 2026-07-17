@@ -10,27 +10,37 @@ function Monitoring() {
     const [metrics, setMetrics] = useState(null);
 
 
+
     useEffect(() => {
 
 
         const fetchMetrics = () => {
 
+
             getMetrics()
+
                 .then(response => {
 
                     setMetrics(response.data);
 
                 })
+
                 .catch(error => {
 
-                    console.error(error);
+                    console.error(
+                        "Failed to load monitoring:",
+                        error
+                    );
 
                 });
+
 
         };
 
 
+
         fetchMetrics();
+
 
 
         const interval = setInterval(
@@ -39,43 +49,52 @@ function Monitoring() {
         );
 
 
+
         return () => clearInterval(interval);
+
 
 
     }, []);
 
 
 
+
     if (!metrics) {
 
         return (
+
             <h1>
                 Loading monitoring...
             </h1>
+
         );
 
     }
 
 
 
-    const total =
+
+    const totalJobs =
         metrics.monitor.total_jobs;
 
 
-    const success =
+    const successfulJobs =
         metrics.monitor.success_jobs;
 
 
+
     const successRate =
-        total === 0
+        totalJobs === 0
             ? 0
             : Math.round(
-                (success / total) * 100
+                (successfulJobs / totalJobs) * 100
             );
 
 
 
+
     return (
+
 
         <div className="monitoring">
 
@@ -86,60 +105,179 @@ function Monitoring() {
 
 
 
-            <div className="monitor-card">
-
-                <h2>
-                    Queue Breakdown
-                </h2>
+            <div className="health-grid">
 
 
-                <p>
-                    High Priority:
-                    {" "}
-                    {metrics.queue_sizes.high}
-                </p>
+                <div className="monitor-card">
+
+                    <h2>
+                        System Health
+                    </h2>
 
 
-                <p>
-                    Medium Priority:
-                    {" "}
-                    {metrics.queue_sizes.medium}
-                </p>
+                    <p className="online">
+                        🟢 OPERATIONAL
+                    </p>
 
 
-                <p>
-                    Low Priority:
-                    {" "}
-                    {metrics.queue_sizes.low}
-                </p>
+                    <p>
+                        API: Online
+                    </p>
+
+
+                    <p>
+                        Workers:
+                        {" "}
+                        {Object.keys(metrics.workers).length}
+                    </p>
+
+
+                </div>
+
+
+
+
+
+                <div className="monitor-card">
+
+                    <h2>
+                        Success Rate
+                    </h2>
+
+
+                    <p className="metric-number">
+                        {successRate}%
+                    </p>
+
+
+                    <p>
+                        Completed Jobs:
+                        {" "}
+                        {successfulJobs}
+                    </p>
+
+
+                </div>
+
+
 
             </div>
 
 
 
 
-            <div className="monitor-card">
 
-                <h2>
-                    Worker Metrics
-                </h2>
+
+
+            <h2>
+                Queue Metrics
+            </h2>
+
+
+
+            <div className="queue-grid">
+
+
+                <div className="queue-card high">
+
+                    HIGH
+
+                    <strong>
+                        {metrics.queue_sizes.high}
+                    </strong>
+
+                    waiting
+
+                </div>
+
+
+
+                <div className="queue-card medium">
+
+                    MEDIUM
+
+                    <strong>
+                        {metrics.queue_sizes.medium}
+                    </strong>
+
+                    waiting
+
+                </div>
+
+
+
+
+                <div className="queue-card low">
+
+                    LOW
+
+                    <strong>
+                        {metrics.queue_sizes.low}
+                    </strong>
+
+                    waiting
+
+                </div>
+
+
+            </div>
+
+
+
+
+
+
+
+            <h2>
+                Worker Cluster
+            </h2>
+
+
+
+            <div className="worker-grid">
 
 
                 {Object.entries(metrics.workers).map(
                     ([worker, jobs]) => (
 
-                        <p key={worker}>
 
-                            {worker}:
+                        <div
+                            className="worker-monitor-card"
+                            key={worker}
+                        >
 
-                            {" "}
 
-                            {jobs} jobs processed
+                            <h3>
+                                {worker}
+                            </h3>
 
-                        </p>
+
+                            <p>
+                                Status:
+                                {" "}
+
+                                {jobs > 0
+                                    ? "🟢 ACTIVE"
+                                    : "⚪ IDLE"
+                                }
+
+                            </p>
+
+
+
+                            <p>
+                                Jobs Processed:
+                                {" "}
+                                {jobs}
+                            </p>
+
+
+                        </div>
+
 
                     )
                 )}
+
 
             </div>
 
@@ -147,29 +285,33 @@ function Monitoring() {
 
 
 
-            <div className="monitor-card">
+            <h2>
+                Runtime Statistics
+            </h2>
 
-                <h2>
-                    System Health
-                </h2>
+
+
+            <div className="runtime-card">
 
 
                 <p>
-                    API Status:
-                    🟢 ONLINE
+                    Total Jobs:
+                    {" "}
+                    {metrics.monitor.total_jobs}
                 </p>
 
 
                 <p>
-                    Workers:
-                    🟢 {Object.keys(metrics.workers).length}/
-                    {Object.keys(metrics.workers).length}
+                    Successful:
+                    {" "}
+                    {metrics.monitor.success_jobs}
                 </p>
 
 
                 <p>
-                    Success Rate:
-                    {successRate}%
+                    Failed:
+                    {" "}
+                    {metrics.monitor.failed_jobs}
                 </p>
 
 
@@ -178,6 +320,7 @@ function Monitoring() {
 
 
         </div>
+
 
     );
 
