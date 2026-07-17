@@ -2,6 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import "./styles/badges.css";
+import "./styles/cards.css";
 import "./App.css";
 
 

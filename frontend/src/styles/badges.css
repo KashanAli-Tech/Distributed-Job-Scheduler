@@ -1,0 +1,109 @@
+.status-badge {
+
+    padding: 5px 12px;
+
+    border-radius: 20px;
+
+    font-size: 0.85rem;
+
+    font-weight: bold;
+
+    display: inline-block;
+
+}
+
+
+
+.status-badge.success {
+
+    background-color: #22c55e;
+
+    color: white;
+
+}
+
+
+
+.status-badge.failed {
+
+    background-color: #ef4444;
+
+    color: white;
+
+}
+
+
+
+.status-badge.running {
+
+    background-color: #eab308;
+
+    color: white;
+
+}
+
+
+
+.status-badge.queued {
+
+    background-color: #3b82f6;
+
+    color: white;
+
+}
+
+
+
+.status-badge.pending {
+
+    background-color: #6b7280;
+
+    color: white;
+
+}
+
+
+
+
+
+.priority-badge {
+
+    padding: 5px 12px;
+
+    border-radius: 20px;
+
+    font-size: 0.85rem;
+
+    font-weight: bold;
+
+}
+
+
+
+.priority-badge.high {
+
+    background-color: #dc2626;
+
+    color: white;
+
+}
+
+
+
+.priority-badge.medium {
+
+    background-color: #f59e0b;
+
+    color: white;
+
+}
+
+
+
+.priority-badge.low {
+
+    background-color: #22c55e;
+
+    color: white;
+
+}

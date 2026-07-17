@@ -36,6 +36,7 @@ def get_job(job_id: str, request: Request):
     return {
         "id": job.id,
         "type": job.type,
+        "payload": job.payload, 
         "priority": job.priority,
         "status": job.status,
         "result": job.result,

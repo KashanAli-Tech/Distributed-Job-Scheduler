@@ -1,0 +1,34 @@
+.monitoring {
+
+    padding: 20px;
+
+}
+
+
+.monitor-card {
+
+    padding: 20px;
+
+    margin-bottom: 20px;
+
+    border-radius: 12px;
+
+    background: #111827;
+
+    color: white;
+
+}
+
+
+.monitor-card h2 {
+
+    margin-bottom: 15px;
+
+}
+
+
+.monitor-card p {
+
+    margin: 8px 0;
+
+}
