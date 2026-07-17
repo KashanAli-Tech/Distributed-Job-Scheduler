@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMetrics } from "../api/schedulerApi";
+import { getMetrics, getEvents, getRetries, getFailedJobs} from "../api/schedulerApi";
 
 import "../styles/monitoring.css";
 
@@ -8,7 +8,9 @@ function Monitoring() {
 
 
     const [metrics, setMetrics] = useState(null);
-
+    const [events, setEvents] = useState([]);
+    const [retries, setRetries] = useState([]);
+    const [failedJobs, setFailedJobs] = useState([]);
 
 
     useEffect(() => {
@@ -22,6 +24,23 @@ function Monitoring() {
                 .then(response => {
 
                     setMetrics(response.data);
+
+                    getEvents()
+                        .then(response => {
+                            setEvents(response.data);
+                        });
+
+
+                    getRetries()
+                        .then(response => {
+                            setRetries(response.data);
+                        });
+
+
+                    getFailedJobs()
+                        .then(response => {
+                            setFailedJobs(response.data);
+                        });
 
                 })
 
@@ -318,6 +337,131 @@ function Monitoring() {
             </div>
 
 
+                <h2>
+                    Live Events
+                </h2>
+
+
+                <div className="monitor-card">
+
+                    {events.length === 0 ? (
+
+                        <p>
+                            No events available
+                        </p>
+
+                    ) : (
+
+                        events.map((event, index) => (
+
+                            <p key={index}>
+
+                                {event.level === "SUCCESS" && "🟢"}
+
+                                {event.level === "FAILED" && "🔴"}
+
+                                {event.level === "RUNNING" && "🔵"}
+
+                                {" "}
+
+                                {event.message}
+
+                            </p>
+
+                        ))
+
+                    )}
+
+                </div>
+
+
+
+
+
+                <h2>
+                    Retry History
+                </h2>
+
+
+                <div className="monitor-card">
+
+
+                    {retries.length === 0 ? (
+
+                        <p>
+                            No retries
+                        </p>
+
+                    ) : (
+
+                        retries.map((retry, index) => (
+
+                            <p key={index}>
+
+                                Job:
+                                {" "}
+                                {retry.job_id.substring(0,6)}
+
+                                {" | "}
+
+                                Attempt:
+                                {" "}
+                                {retry.attempt}/
+                                {retry.max_retries}
+
+                            </p>
+
+                        ))
+
+                    )}
+
+
+                </div>
+
+
+
+
+
+                <h2>
+                    Failed Jobs
+                </h2>
+
+
+                <div className="monitor-card">
+
+
+                    {failedJobs.length === 0 ? (
+
+                        <p>
+                            No failed jobs
+                        </p>
+
+                    ) : (
+
+                        failedJobs.map((job,index)=>(
+
+                            <p key={index}>
+
+                                {job.type}
+
+                                {" | "}
+
+                                Error:
+                                {" "}
+                                {job.error}
+
+                                {" | Retries: "}
+
+                                {job.retries}
+
+                            </p>
+
+                        ))
+
+                    )}
+
+
+                </div>
 
         </div>
 

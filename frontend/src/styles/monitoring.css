@@ -140,3 +140,23 @@
     gap: 40px;
 
 }
+
+.event-success {
+
+    color: #22c55e;
+
+}
+
+
+.event-failed {
+
+    color: #ef4444;
+
+}
+
+
+.event-running {
+
+    color: #3b82f6;
+
+}
