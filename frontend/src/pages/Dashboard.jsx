@@ -134,6 +134,7 @@ function Dashboard() {
                                     ? "RUNNING"
                                     : "IDLE"
                             }
+                            jobs={jobs}
                         />
 
                     )

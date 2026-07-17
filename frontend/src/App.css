@@ -4,10 +4,10 @@
 }
 
 .sidebar {
-    width: 250px;
+    width: 240px;
     background: #111827;
     color: white;
-    padding: 20px;
+    padding: 24px;
 }
 
 .sidebar h2 {
@@ -30,8 +30,10 @@
 }
 
 .content {
+
     flex: 1;
-    padding: 30px;
-    background: #0f172a;
-    color: white;
+    padding: 40px;
+    background: #f8fafc;
+    color: #111827;
+
 }

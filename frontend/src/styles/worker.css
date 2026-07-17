@@ -1,0 +1,42 @@
+.worker-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+
+.worker-card h3 {
+    margin: 0 0 12px;
+    font-size: 18px;
+}
+
+
+.worker-status {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.worker-status.active {
+    color: #16a34a;
+}
+
+
+.worker-status.idle {
+    color: #6b7280;
+}
+
+
+.worker-info {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    color: #6b7280;
+}
+
+
+.worker-info strong {
+    color: #111827;
+    font-size: 20px;
+}

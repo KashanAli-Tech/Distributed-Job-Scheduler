@@ -4,6 +4,7 @@ import App from "./App";
 import "./index.css";
 import "./styles/badges.css";
 import "./styles/cards.css";
+import "./styles/worker.css";
 import "./App.css";
 
 

@@ -1,13 +1,21 @@
-function StatCard({ title, value }) {
-    return (
-        <div className="stat-card">
+function StatCard({title,value}) {
 
-            <h3>{title}</h3>
+return (
 
-            <p>{value}</p>
+<div className="stat-card">
 
-        </div>
-    );
+<p>
+{title}
+</p>
+
+<h2>
+{value}
+</h2>
+
+</div>
+
+);
+
 }
 
 export default StatCard;

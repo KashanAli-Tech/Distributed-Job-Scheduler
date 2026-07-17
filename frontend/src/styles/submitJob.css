@@ -1,0 +1,61 @@
+.submit-page {
+    padding:20px;
+}
+
+
+.submit-card {
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    padding:30px;
+    max-width:600px;
+}
+
+
+.form-group {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:22px;
+}
+
+
+.form-group label {
+    font-size:14px;
+    font-weight:600;
+    color:#374151;
+}
+
+
+.form-group select,
+.form-group textarea {
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #d1d5db;
+    font-size:15px;
+}
+
+
+.form-group textarea {
+    min-height:120px;
+    resize:vertical;
+    font-family:monospace;
+}
+
+
+.submit-card button {
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:#111827;
+    color:white;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+
+.submit-card button:hover {
+    background:#1f2937;
+}
