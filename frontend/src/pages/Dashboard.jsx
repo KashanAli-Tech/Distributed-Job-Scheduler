@@ -4,7 +4,7 @@ import { getMetrics } from "../api/schedulerApi";
 import StatCard from "../components/StatCard";
 import WorkerCard from "../components/WorkerCard";
 import Charts from "../components/Charts";
-
+import "../styles/dashboard.css";
 
 function Dashboard() {
 
@@ -64,7 +64,7 @@ function Dashboard() {
 
     return (
 
-        <div>
+        <div className="dashboard">
 
 
             <h1>
@@ -80,7 +80,7 @@ function Dashboard() {
 
 
 
-            <div>
+            <div className="stats-container">
 
 
                 <StatCard
@@ -120,7 +120,7 @@ function Dashboard() {
 
 
 
-            <div>
+            <div className="workers-container">
 
 
                 {Object.entries(metrics.workers).map(
@@ -145,7 +145,9 @@ function Dashboard() {
 
 
 
-            <Charts metrics={metrics}/>
+            <div className="chart-container">
+                <Charts metrics={metrics}/>
+            </div>
 
 
 
