@@ -6,7 +6,7 @@ function Sidebar() {
         <aside className="sidebar">
 
             <h2>
-                Distributed Scheduler
+                Distributed Job Scheduler
             </h2>
 
 

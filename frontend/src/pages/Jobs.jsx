@@ -3,7 +3,7 @@ import { getJobs } from "../api/schedulerApi";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
 import PriorityBadge from "../components/PriorityBadge";
-
+import "../styles/jobs.css";
 
 function Jobs() {
 
@@ -104,90 +104,109 @@ function Jobs() {
 
 
 
-            <div>
+            <div className="jobs-filter-container">
 
 
-                <input
+                <div className="job-search">
 
-                    type="text"
+                    <input
 
-                    placeholder="Search jobs..."
+                        placeholder="Search jobs by ID..."
 
-                    value={search}
+                        value={search}
 
-                    onChange={(e) =>
-                        setSearch(e.target.value)
-                    }
+                        onChange={
+                            (e)=>setSearch(e.target.value)
+                        }
 
-                />
+                    />
 
-
-
-                <select
-
-                    value={statusFilter}
-
-                    onChange={(e) =>
-                        setStatusFilter(e.target.value)
-                    }
-
-                >
-
-                    <option value="ALL">
-                        All Status
-                    </option>
-
-                    <option value="SUCCESS">
-                        Success
-                    </option>
-
-                    <option value="FAILED">
-                        Failed
-                    </option>
-
-                    <option value="RUNNING">
-                        Running
-                    </option>
-
-                    <option value="QUEUED">
-                        Queued
-                    </option>
-
-
-                </select>
+                </div>
 
 
 
 
-                <select
-
-                    value={priorityFilter}
-
-                    onChange={(e) =>
-                        setPriorityFilter(e.target.value)
-                    }
-
-                >
-
-                    <option value="ALL">
-                        All Priority
-                    </option>
-
-                    <option value="HIGH">
-                        High
-                    </option>
-
-                    <option value="MEDIUM">
-                        Medium
-                    </option>
-
-                    <option value="LOW">
-                        Low
-                    </option>
 
 
-                </select>
+                <div className="job-filter">
 
+
+                    <select
+
+                        value={statusFilter}
+
+                        onChange={
+                            (e)=>setStatusFilter(e.target.value)
+                        }
+
+                    >
+
+                        <option value="">
+                            All Status
+                        </option>
+
+
+                        <option value="SUCCESS">
+                            SUCCESS
+                        </option>
+
+
+                        <option value="FAILED">
+                            FAILED
+                        </option>
+
+
+                        <option value="RUNNING">
+                            RUNNING
+                        </option>
+
+                        <option value="QUEUED">
+                            QUEUED
+                        </option>
+
+                
+
+                    </select>
+
+
+                </div>
+
+
+                <div className="job-filter">
+
+
+                    <select
+
+                        value={priorityFilter}
+
+                        onChange={
+                            (e)=>setPriorityFilter(e.target.value)
+                        }
+
+                    >
+
+                        <option value="">
+                            All Priority
+                        </option>
+
+
+                        <option value="HIGH">
+                            HIGH
+                        </option>
+
+
+                        <option value="MEDIUM">
+                            MEDIUM
+                        </option>
+
+
+                        <option value="LOW">
+                            LOW
+                        </option>
+
+
+                    </select>
+                </div>
 
             </div>
 
@@ -195,8 +214,9 @@ function Jobs() {
 
 
 
-            <table>
+            <div className="jobs-table-container">
 
+            <table className="jobs-table">
 
                 <thead>
 
@@ -274,9 +294,9 @@ function Jobs() {
 
                 </tbody>
 
-
-
             </table>
+
+            </div>
 
 
 

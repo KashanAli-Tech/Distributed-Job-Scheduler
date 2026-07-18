@@ -1,0 +1,145 @@
+
+.jobs-filter-container {
+
+    display: flex;
+
+    gap: 15px;
+
+    margin-bottom: 30px;
+
+    padding: 20px;
+
+    background: #111827;
+
+    border-radius: 16px;
+
+    align-items: center;
+
+}
+
+
+
+.job-search {
+
+    flex: 1;
+
+}
+
+
+
+.job-search input,
+.job-filter select {
+
+    box-sizing: border-box;
+
+    width: 100%;
+
+    height: 45px;
+
+    padding: 0 14px;
+
+    border-radius: 10px;
+
+    border: 1px solid #374151;
+
+    background: #1f2937;
+
+    color: white;
+
+    font-size: 15px;
+
+}
+
+
+
+.job-filter {
+
+    width: 180px;
+
+}
+
+
+
+.job-search input:focus,
+.job-filter select:focus {
+
+    border-color: #3b82f6;
+
+    outline: none;
+
+}
+
+.job-filter {
+
+    min-width: 180px;
+
+}
+
+
+
+.job-filter select {
+
+    cursor: pointer;
+
+}
+
+.jobs-table-container {
+
+    width: 80%;
+
+    background: #111827;
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    overflow-x: auto;
+
+}
+
+
+.jobs-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    color: white;
+
+}
+
+
+
+.jobs-table th {
+
+    text-align: left;
+
+    padding: 14px;
+
+    color: #9ca3af;
+
+    font-size: 14px;
+
+    border-bottom: 1px solid #374151;
+
+}
+
+
+
+.jobs-table td {
+
+    padding: 14px;
+
+    border-bottom: 1px solid #1f2937;
+
+}
+
+
+
+.jobs-table tr:hover {
+
+    background: #1f2937;
+
+}

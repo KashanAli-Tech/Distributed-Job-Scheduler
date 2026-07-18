@@ -71,13 +71,9 @@ function Dashboard() {
                 Dashboard
             </h1>
 
-
-
             <h2>
-                Scheduler Status: ONLINE 🟢
+                Scheduler Status: ONLINE 
             </h2>
-
-
 
 
             <div className="stats-container">
@@ -108,8 +104,6 @@ function Dashboard() {
 
 
             </div>
-
-
 
 
 

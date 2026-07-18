@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMetrics, getEvents, getRetries, getFailedJobs} from "../api/schedulerApi";
+import {getMetrics, getEvents, getRetries, getFailedJobs} from "../api/schedulerApi";
 
 import "../styles/monitoring.css";
 
@@ -16,54 +16,61 @@ function Monitoring() {
     useEffect(() => {
 
 
-        const fetchMetrics = () => {
+        const fetchMonitoring = async () => {
 
 
-            getMetrics()
-
-                .then(response => {
-
-                    setMetrics(response.data);
-
-                    getEvents()
-                        .then(response => {
-                            setEvents(response.data);
-                        });
+            try {
 
 
-                    getRetries()
-                        .then(response => {
-                            setRetries(response.data);
-                        });
+                const [
+                    metricsResponse,
+                    eventsResponse,
+                    retriesResponse,
+                    failedResponse
 
+                ] = await Promise.all([
 
+                    getMetrics(),
+                    getEvents(),
+                    getRetries(),
                     getFailedJobs()
-                        .then(response => {
-                            setFailedJobs(response.data);
-                        });
 
-                })
+                ]);
 
-                .catch(error => {
 
-                    console.error(
-                        "Failed to load monitoring:",
-                        error
-                    );
 
-                });
+                setMetrics(metricsResponse.data);
+
+                setEvents(eventsResponse.data);
+
+                setRetries(retriesResponse.data);
+
+                setFailedJobs(failedResponse.data);
+
+
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "Failed to load monitoring:",
+                    error
+                );
+
+            }
 
 
         };
 
 
 
-        fetchMetrics();
+        fetchMonitoring();
 
 
 
         const interval = setInterval(
-            fetchMetrics,
+            fetchMonitoring,
             5000
         );
 
@@ -104,10 +111,11 @@ function Monitoring() {
 
     const successRate =
         totalJobs === 0
-            ? 0
-            : Math.round(
-                (successfulJobs / totalJobs) * 100
-            );
+        ? 0
+        :
+        Math.round(
+            (successfulJobs / totalJobs) * 100
+        );
 
 
 
@@ -135,7 +143,7 @@ function Monitoring() {
 
 
                     <p className="online">
-                        🟢 OPERATIONAL
+                        OPERATIONAL
                     </p>
 
 
@@ -170,7 +178,7 @@ function Monitoring() {
 
 
                     <p>
-                        Completed Jobs:
+                        Completed:
                         {" "}
                         {successfulJobs}
                     </p>
@@ -197,46 +205,37 @@ function Monitoring() {
             <div className="queue-grid">
 
 
-                <div className="queue-card high">
-
-                    HIGH
-
-                    <strong>
-                        {metrics.queue_sizes.high}
-                    </strong>
-
-                    waiting
-
-                </div>
+                {
+                    Object.entries(metrics.queue_sizes)
+                    .map(([queue,value]) => (
 
 
-
-                <div className="queue-card medium">
-
-                    MEDIUM
-
-                    <strong>
-                        {metrics.queue_sizes.medium}
-                    </strong>
-
-                    waiting
-
-                </div>
+                        <div
+                            className={`queue-card ${queue}`}
+                            key={queue}
+                        >
 
 
+                            <span>
+                                {queue.toUpperCase()}
+                            </span>
 
 
-                <div className="queue-card low">
+                            <strong>
+                                {value}
+                            </strong>
 
-                    LOW
 
-                    <strong>
-                        {metrics.queue_sizes.low}
-                    </strong>
+                            <small>
+                                waiting
+                            </small>
 
-                    waiting
 
-                </div>
+                        </div>
+
+
+                    ))
+                }
 
 
             </div>
@@ -256,8 +255,9 @@ function Monitoring() {
             <div className="worker-grid">
 
 
-                {Object.entries(metrics.workers).map(
-                    ([worker, jobs]) => (
+                {
+                    Object.entries(metrics.workers)
+                    .map(([worker,jobs]) => (
 
 
                         <div
@@ -270,12 +270,10 @@ function Monitoring() {
                                 {worker}
                             </h3>
 
-
                             <p>
-                                Status:
-                                {" "}
 
-                                {jobs > 0
+                                {
+                                    jobs > 0
                                     ? "🟢 ACTIVE"
                                     : "⚪ IDLE"
                                 }
@@ -294,8 +292,8 @@ function Monitoring() {
                         </div>
 
 
-                    )
-                )}
+                    ))
+                }
 
 
             </div>
@@ -308,160 +306,227 @@ function Monitoring() {
                 Runtime Statistics
             </h2>
 
+            <div className="runtime-grid">
 
 
-            <div className="runtime-card">
+                <div className="runtime-card">
+
+                    <span>
+                        Total Jobs
+                    </span>
+
+                    <strong>
+                        {metrics.monitor.total_jobs}
+                    </strong>
+
+                </div>
 
 
-                <p>
-                    Total Jobs:
-                    {" "}
-                    {metrics.monitor.total_jobs}
-                </p>
 
 
-                <p>
-                    Successful:
-                    {" "}
-                    {metrics.monitor.success_jobs}
-                </p>
+                <div className="runtime-card">
+
+                    <span>
+                        Successful
+                    </span>
+
+                    <strong>
+                        {metrics.monitor.success_jobs}
+                    </strong>
+
+                </div>
 
 
-                <p>
-                    Failed:
-                    {" "}
-                    {metrics.monitor.failed_jobs}
-                </p>
+
+
+                <div className="runtime-card">
+
+                    <span>
+                        Failed
+                    </span>
+
+                    <strong>
+                        {metrics.monitor.failed_jobs}
+                    </strong>
+
+                </div>
 
 
             </div>
 
 
-                <h2>
-                    Live Events
-                </h2>
+            <h2>
+                Live Events
+            </h2>
 
 
-                <div className="monitor-card">
+            <div className="event-list">
 
-                    {events.length === 0 ? (
 
-                        <p>
-                            No events available
-                        </p>
+                {
+                    events.length === 0
 
-                    ) : (
+                    ?
 
-                        events.map((event, index) => (
+                    <p>
+                        No events available
+                    </p>
 
-                            <p key={index}>
+                    :
 
-                                {event.level === "SUCCESS" && "🟢"}
+                    events
+                    .slice()
+                    .reverse()
+                    .map((event,index)=>(
 
-                                {event.level === "FAILED" && "🔴"}
 
-                                {event.level === "RUNNING" && "🔵"}
+                        <div
+                            className={`event-card ${event.level.toLowerCase()}`}
+                            key={index}
+                        >
 
-                                {" "}
 
+                            <div className="event-header">
+
+
+                                <strong>
+                                    {event.level}
+                                </strong>
+
+
+                                <span>
+                                    {event.timestamp}
+                                </span>
+
+
+                            </div>
+
+
+                            <p>
                                 {event.message}
-
                             </p>
 
-                        ))
 
-                    )}
-
-                </div>
+                        </div>
 
 
+                    ))
+                }
+
+
+            </div>
 
 
 
-                <h2>
-                    Retry History
-                </h2>
 
 
-                <div className="monitor-card">
+            <h2>
+                Retry History
+            </h2>
 
 
-                    {retries.length === 0 ? (
+            <div className="retry-grid">
 
-                        <p>
-                            No retries
-                        </p>
 
-                    ) : (
+                {
+                    retries.length === 0
 
-                        retries.map((retry, index) => (
+                    ?
 
-                            <p key={index}>
+                    <p>
+                        No retries
+                    </p>
 
-                                Job:
-                                {" "}
+                    :
+
+                    retries.map((retry,index)=>(
+
+
+                        <div
+                            className="retry-card"
+                            key={index}
+                        >
+
+                            <h3>
                                 {retry.job_id.substring(0,6)}
+                            </h3>
 
-                                {" | "}
 
+                            <p>
                                 Attempt:
                                 {" "}
                                 {retry.attempt}/
                                 {retry.max_retries}
-
                             </p>
 
-                        ))
 
-                    )}
-
-
-                </div>
+                        </div>
 
 
+                    ))
+                }
+
+
+            </div>
 
 
 
-                <h2>
-                    Failed Jobs
-                </h2>
 
 
-                <div className="monitor-card">
+            <h2>
+                Failed Jobs
+            </h2>
 
 
-                    {failedJobs.length === 0 ? (
 
-                        <p>
-                            No failed jobs
-                        </p>
+            <div className="failed-grid">
 
-                    ) : (
 
-                        failedJobs.map((job,index)=>(
+                {
+                    failedJobs.length === 0
 
-                            <p key={index}>
+                    ?
 
+                    <p>
+                        No failed jobs
+                    </p>
+
+
+                    :
+
+                    failedJobs.map((job,index)=>(
+
+
+                        <div
+                            className="failed-card"
+                            key={index}
+                        >
+
+                            <h3>
                                 {job.type}
+                            </h3>
 
-                                {" | "}
 
-                                Error:
-                                {" "}
+                            <p>
                                 {job.error}
-
-                                {" | Retries: "}
-
-                                {job.retries}
-
                             </p>
 
-                        ))
 
-                    )}
+                            <span>
+                                Retries:
+                                {" "}
+                                {job.retries}
+                            </span>
 
 
-                </div>
+                        </div>
+
+
+                    ))
+                }
+
+
+            </div>
 
         </div>
 

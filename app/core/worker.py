@@ -24,7 +24,7 @@ class Worker:
 
     # debug output for tracing worker behaviour
     def log(self, message: str):
-        print(f"[Worker-{self.worker_id}] {message}")
+        print(f"[Worker {self.worker_id}] {message}")
 
 
     # continuously fetches jobs and processes them.       
@@ -44,7 +44,7 @@ class Worker:
 
     def process_job(self, job):
         
-        add_event(f"{self.worker_id} picked job {job.id}", "RUNNING")
+        add_event(f"Worker {self.worker_id} picked job {job.id}", "RUNNING")
 
         with self.registry_lock:
             job.status = JobStatus.RUNNING
@@ -56,7 +56,7 @@ class Worker:
 
   
         # simulate random FAILURE
-        failure_chance = 0.25  # 25% failure rate for now
+        failure_chance = 0.3  # 25% failure rate for now
         if random.random() < failure_chance:
             self.handle_failure(job)
             return
@@ -72,7 +72,7 @@ class Worker:
             self.system.monitor.record_success()
 
         self.processed_count += 1
-        add_event(f"{self.worker_id} completed job {job.id}", "SUCCESS")
+        add_event(f"Worker {self.worker_id} completed job {job.id}", "SUCCESS")
 
     
     # handles retry logic and failure states.
@@ -81,7 +81,7 @@ class Worker:
         with self.registry_lock:
             job.retries += 1
             add_retry(job, "Job execution failed")
-            add_event(f"{self.worker_id} failed job {job.id}", "FAILED")
+            add_event(f"Worker {self.worker_id} failed job {job.id}", "FAILED")
 
             if job.retries <= job.max_retries:
                 job.status = JobStatus.QUEUED

@@ -8,7 +8,6 @@ import PriorityBadge from "../components/PriorityBadge";
 function JobDetails() {
 
     const { id } = useParams();
-
     const [job, setJob] = useState(null);
 
 
@@ -23,7 +22,6 @@ function JobDetails() {
                 );
 
                 const data = await response.json();
-
                 setJob(data);
 
 

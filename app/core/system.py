@@ -58,7 +58,7 @@ class System:
             self.threads.append(thread)
             thread.start()
 
-            self.logger.info(f"Worker-{i + 1} started")
+            self.logger.info(f"Worker {i + 1} started")
 
         self.logger.info("System fully running with worker pool")
 
@@ -75,6 +75,6 @@ class System:
     # simple monitoring info 
     def get_worker_stats(self):
         return {
-            f"worker-{w.worker_id}": w.processed_count
+            f"Worker {w.worker_id}": w.processed_count
             for w in self.workers
         }
