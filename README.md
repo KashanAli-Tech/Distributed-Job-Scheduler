@@ -38,7 +38,7 @@ docs/screenshots/
 System design diagrams can be found here:
 
 ```
-docs/system_diagrams/
+docs/system-diagrams/
 ```
 
 The diagrams include:
@@ -47,8 +47,7 @@ The diagrams include:
 - Queue architecture
 - Worker architecture
 - Job lifecycle
-- Database design
-- Recovery flow
+- Recovery system
 - Monitoring architecture
 
 ---
